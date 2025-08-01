@@ -3,13 +3,22 @@ WORKDIR /usr/src/wpp-server
 ENV NODE_ENV=production PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 # Instalar dependencias del sistema necesarias para WPPConnect
-RUN apk add --no-cache \
+RUN apk update && \
+    apk add --no-cache \
     chromium \
     nss \
     freetype \
+    freetype-dev \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
+    vips-dev \
+    fftw-dev \
+    gcc \
+    g++ \
+    make \
+    libc6-compat \
+    fontconfig \
     dbus \
     && rm -rf /var/cache/apk/*
 

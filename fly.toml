@@ -4,7 +4,7 @@ primary_region = 'eze'
 [build]
 
 [deploy]
-  strategy = "immediate"
+  strategy = "rolling"
 
 [http_service]
   internal_port = 21465
@@ -15,9 +15,9 @@ primary_region = 'eze'
   processes = ['app']
 
 [[vm]]
-memory = "8gb"
-cpu_kind = "performance"  
-cpus = 2    
+  memory = "8gb"
+  cpu_kind = "performance"  
+  cpus = 2    
 
 [mounts]
   source = "whatsapp_data"
