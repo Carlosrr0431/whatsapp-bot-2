@@ -9,7 +9,7 @@ export default {
   port: '21465',
   deviceName: 'WppConnect',
   poweredBy: 'WPPConnect-Server',
-  startAllSession: false,
+  startAllSession: true,
   tokenStoreType: envConfig.tokenStoreType,
   maxListeners: 100,
   customUserDataDir: envConfig.customUserDataDir,
@@ -20,15 +20,15 @@ export default {
   listenAcks: true,            // Escucha confirmaciones de lectura (ticks)
   onPresenceChanged: false,    // ❌ No escucha cambios de presencia (por ejemplo: "escribiendo...")
   onParticipantsChanged: false, // ❌ No escucha cambios en participantes de grupos
-  onReactionMessage: false,    // ❌ No escucha reacciones (emojis)
-  onPollResponse: false,        // ✅ Escucha respuestas a encuestas
-  onRevokedMessage: false,      // ✅ Escucha cuando un mensaje se borra para todos
+  onReactionMessage: true,    // ❌ No escucha reacciones (emojis)
+  onPollResponse: true,        // ✅ Escucha respuestas a encuestas
+  onRevokedMessage: true,      // ✅ Escucha cuando un mensaje se borra para todos
   onLabelUpdated: false,        // ✅ Escucha cambios de etiquetas
   onSelfMessage: false,        // ❌ No procesa mensajes enviados por el propio bot
   ignore: ['status@broadcast'] // Ignora mensajes del estado de WhatsApp
 },
    websocket: {
-    autoDownload: false,
+    autoDownload: true,
     uploadS3: false,
   },
   chatwoot: {
@@ -45,7 +45,7 @@ export default {
       logger: ['console'],
     },
   createOptions: {
-    browserArgs: [
+   browserArgs: [
     '--no-sandbox',
     '--disable-web-security',
     '--disable-default-apps',
@@ -60,7 +60,14 @@ export default {
     '--ignore-ssl-errors',
     '--ignore-certificate-errors-spki-list',
     '--disable-background-networking',
-    '--disable-gpu'
+    '--disable-gpu',
+    '--disable-dev-shm-usage',           // ✅ AGREGADO: Mejor manejo de memoria
+    '--disable-setuid-sandbox',          // ✅ AGREGADO: Necesario para contenedores
+    '--no-zygote',                       // ✅ AGREGADO: Mejor para contenedores
+    '--single-process',                  // ✅ AGREGADO: Evita problemas de memoria
+    '--disable-background-timer-throttling', // ✅ AGREGADO: Mejor rendimiento
+    '--disable-renderer-backgrounding',  // ✅ AGREGADO: Mantiene procesos activos
+    '--disable-backgrounding-occluded-windows' // ✅ AGREGADO: No suspende ventanas
   ],
     executablePath: '/usr/bin/chromium-browser',
     userDataDir: envConfig.customUserDataDir,
