@@ -41,9 +41,9 @@ export default {
     daysToArchive: 45,
   },
   log: {
-    level: 'warn', // Before open a issue, change level to silly and retry a action
-    logger: ['console'],
-  },
+      level: 'silly', // Cambiado temporalmente para debug
+      logger: ['console'],
+    },
   createOptions: {
     browserArgs: [
     '--no-sandbox',
