@@ -16,9 +16,9 @@ primary_region = 'eze'
 
 [[vm]]
   memory = '8gb'
-  cpu_kind = 'performance'
+  cpu_kind = 'shared'
   cpus = 2
-  
+
 [mounts]
   source = "whatsapp_data"
   destination = "/data"
