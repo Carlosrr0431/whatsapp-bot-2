@@ -40,11 +40,41 @@ import { createLogger } from './util/logger';
 
 export const logger = createLogger(config.log);
 
+// Función para inicializar directorios en Fly.io
+function initializeFlyDirectories() {
+  try {
+    const fs = require('fs');
+    
+    // Verificar si estamos en Fly.io
+    if (fs.existsSync('/data')) {
+      logger.info('☁️ Detectado entorno Fly.io - inicializando directorios...');
+      
+      // Crear directorios necesarios
+      const dirs = ['/data', '/data/userData', '/data/sessions'];
+      dirs.forEach(dir => {
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+          logger.info(`📁 Directorio creado: ${dir}`);
+        }
+      });
+      
+      logger.info('✅ Directorios de Fly.io inicializados correctamente');
+    } else {
+      logger.info('🏠 Detectado entorno local');
+    }
+  } catch (error) {
+    logger.error('❌ Error inicializando directorios:', error);
+  }
+}
+
 export function initServer(serverOptions: Partial<ServerOptions>): {
   app: Express;
   routes: Router;
   logger: Logger;
 } {
+  // Inicializar directorios de Fly.io al inicio
+  initializeFlyDirectories();
+  
   if (typeof serverOptions !== 'object') {
     serverOptions = {};
   }

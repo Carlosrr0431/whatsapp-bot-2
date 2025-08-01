@@ -1,11 +1,14 @@
 import { FileTokenStore as fsTokenStore } from './FileTokenStore/FileTokenStore';
+import { getEnvConfig } from '../envConfig';
 
 class FileTokenStore {
   declare client: any;
   constructor(client: any) {
     this.client = client;
   }
+  
   tokenStore = new fsTokenStore({
+    path: getEnvConfig().sessionFolder,
     encodeFunction: (data) => {
       return this.encodeFunction(data, this.client.config);
     },

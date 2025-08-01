@@ -7,3 +7,14 @@ log
 node_modules
 npm-debug.log
 tokens
+wppconnect_tokens
+userData
+.env*
+*.log
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+README.md
+CHANGELOG.md
+*.md

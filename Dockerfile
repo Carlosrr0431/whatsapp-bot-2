@@ -1,16 +1,33 @@
 FROM node:22.17.1-alpine AS base
 WORKDIR /usr/src/wpp-server
 ENV NODE_ENV=production PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-COPY package.json ./
+
+# Instalar dependencias del sistema necesarias para WPPConnect
 RUN apk update && \
     apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
     vips-dev \
     fftw-dev \
     gcc \
     g++ \
     make \
     libc6-compat \
+    fontconfig \
+    dbus \
     && rm -rf /var/cache/apk/*
+
+# Configurar Chromium para Puppeteer
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROMIUM_PATH=/usr/bin/chromium-browser
+
+COPY package.json ./
 RUN yarn install --production --pure-lockfile && \
     yarn add sharp --ignore-engines && \
     yarn cache clean
@@ -26,9 +43,27 @@ RUN yarn build
 
 FROM base
 WORKDIR /usr/src/wpp-server/
-RUN apk add --no-cache chromium
-RUN yarn cache clean
-COPY . .
-COPY --from=build /usr/src/wpp-server/ /usr/src/wpp-server/
+
+# Copiar archivos compilados
+COPY --from=build /usr/src/wpp-server/dist ./dist
+COPY --from=build /usr/src/wpp-server/package.json ./package.json
+COPY --from=build /usr/src/wpp-server/node_modules ./node_modules
+
+# Copiar script de inicialización
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Crear directorios base
+RUN mkdir -p /usr/src/wpp-server/wppconnect_tokens
+
 EXPOSE 21465
-ENTRYPOINT ["node", "dist/server.js"]
+
+# Verificar que Chromium funciona
+RUN /usr/bin/chromium-browser --version && \
+    which chromium-browser && \
+    ls -la /usr/bin/chromium*
+
+# Verificar también como chromium sin -browser
+RUN ln -sf /usr/bin/chromium-browser /usr/bin/chromium 2>/dev/null || true
+
+ENTRYPOINT ["/entrypoint.sh", "node", "dist/server.js"]
