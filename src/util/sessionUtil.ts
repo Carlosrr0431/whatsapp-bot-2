@@ -37,14 +37,134 @@ export const chromiumArgs = [
   '--ignore-certificate-errors', // Ignores certificate errors
   '--ignore-ssl-errors', // Ignores SSL errors
   '--ignore-certificate-errors-spki-list', // Ignores certificate errors in SPKI list
+  // ✅ AGREGAR: Argumentos específicos para Fly.io
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  '--disable-setuid-sandbox',
+  '--disable-background-timer-throttling',
+  '--disable-renderer-backgrounding',
+  '--disable-backgrounding-occluded-windows',
+  '--disable-features=VizDisplayCompositor',
+  '--memory-pressure-off',
+  '--max_old_space_size=4096',
+  '--single-process',
+  '--no-zygote'
 ];
-// eslint-disable-next-line prefer-const
-export let clientsArray: Whatsapp[] = [];
-export const sessions = [];
+
+// ✅ CORREGIR: Cambiar de array a object
+export const clientsArray: { [key: string]: Whatsapp } = {};
+export const sessions: string[] = [];
 export const eventEmitter = new EventEmitter();
 
+// ✅ CORREGIR: Función de eliminación de sesión
 export function deleteSessionOnArray(session: string): void {
-  const newArray = clientsArray;
-  delete clientsArray[session];
-  clientsArray = newArray;
+  try {
+    if (clientsArray[session]) {
+      console.log(`🗑️ Deleting session: ${session}`);
+      
+      // Intentar cerrar la sesión si tiene el método close
+      try {
+        if (typeof clientsArray[session].close === 'function') {
+          clientsArray[session].close();
+        }
+      } catch (closeError) {
+        console.warn(`⚠️ Error closing session ${session}:`, closeError);
+      }
+      
+      // Eliminar del objeto
+      delete clientsArray[session];
+      
+      // Remover de la lista de sesiones
+      const sessionIndex = sessions.indexOf(session);
+      if (sessionIndex > -1) {
+        sessions.splice(sessionIndex, 1);
+      }
+      
+      console.log(`✅ Session ${session} deleted successfully`);
+      console.log(`📊 Active sessions: ${Object.keys(clientsArray).length}`);
+    } else {
+      console.log(`⚠️ Session ${session} not found in array`);
+    }
+  } catch (error) {
+    console.error(`❌ Error deleting session ${session}:`, error);
+  }
 }
+
+// ✅ AGREGAR: Función para verificar si una sesión es válida
+export function isValidSession(session: string): boolean {
+  try {
+    const client = clientsArray[session];
+    if (!client) {
+      console.log(`❌ Session ${session} not found`);
+      return false;
+    }
+    
+    // Verificar que tiene los métodos necesarios
+    const requiredMethods = ['listChats', 'isConnected', 'sendText'];
+    for (const method of requiredMethods) {
+      if (typeof client[method] !== 'function') {
+        console.log(`❌ Session ${session} missing method: ${method}`);
+        return false;
+      }
+    }
+    
+    console.log(`✅ Session ${session} is valid`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error validating session ${session}:`, error);
+    return false;
+  }
+}
+
+// ✅ AGREGAR: Función para obtener estadísticas de sesiones
+export function getSessionStats(): { total: number; active: string[]; inactive: string[] } {
+  const active: string[] = [];
+  const inactive: string[] = [];
+  
+  for (const [sessionName, client] of Object.entries(clientsArray)) {
+    if (isValidSession(sessionName)) {
+      active.push(sessionName);
+    } else {
+      inactive.push(sessionName);
+    }
+  }
+  
+  return {
+    total: Object.keys(clientsArray).length,
+    active,
+    inactive
+  };
+}
+
+// ✅ AGREGAR: Función de limpieza automática
+export function cleanupInvalidSessions(): void {
+  try {
+    console.log('🧹 Starting session cleanup...');
+    const stats = getSessionStats();
+    
+    console.log(`📊 Session stats - Total: ${stats.total}, Active: ${stats.active.length}, Inactive: ${stats.inactive.length}`);
+    
+    // Eliminar sesiones inactivas
+    for (const sessionName of stats.inactive) {
+      console.log(`🗑️ Removing inactive session: ${sessionName}`);
+      delete clientsArray[sessionName];
+    }
+    
+    console.log(`✅ Cleanup completed. Remaining sessions: ${Object.keys(clientsArray).length}`);
+  } catch (error) {
+    console.error('❌ Error during session cleanup:', error);
+  }
+}
+
+// ✅ AGREGAR: Limpieza automática cada 5 minutos
+setInterval(() => {
+  cleanupInvalidSessions();
+}, 5 * 60 * 1000);
+
+// ✅ AGREGAR: Log de sesiones cada minuto para debug
+setInterval(() => {
+  const stats = getSessionStats();
+  if (stats.total > 0) {
+    console.log(`📱 Sessions status - Active: ${stats.active.join(', ')} | Inactive: ${stats.inactive.join(', ')}`);
+  }
+}, 60 * 1000);
