@@ -36,9 +36,9 @@ export default {
     sendStatus: false,
   },
   archive: {
-    enable: false,
+    enable: true,
     waitTime: 10,
-    daysToArchive: 45,
+    daysToArchive: 90,
   },
   log: {
       level: 'silly', // Cambiado temporalmente para debug
@@ -76,18 +76,18 @@ export default {
   },
   db: {
     mongodbDatabase: 'tokens',
-    mongodbCollection: '',
+    mongodbCollection: 'wppconnect',     // ✅ AGREGAR: Colección específica
     mongodbUser: '',
     mongodbPassword: '',
     mongodbHost: '',
-    mongoIsRemote: true,
+    mongoIsRemote: false,                // ✅ CAMBIAR: Local como Railway
     mongoURLRemote: '',
     mongodbPort: 27017,
     redisHost: 'localhost',
     redisPort: 6379,
     redisPassword: '',
     redisDb: 0,
-    redisPrefix: 'docker',
+    redisPrefix: 'wppconnect',   
   },
   aws_s3: {
     region: 'sa-east-1' as any,
