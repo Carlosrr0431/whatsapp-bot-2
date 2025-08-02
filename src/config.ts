@@ -9,7 +9,7 @@ export default {
   port: '21465',
   deviceName: 'WppConnect',
   poweredBy: 'WPPConnect-Server',
-  startAllSession: true,
+  startAllSession: false,
   tokenStoreType: envConfig.tokenStoreType,
   maxListeners: 100,
   customUserDataDir: envConfig.customUserDataDir,
@@ -20,9 +20,9 @@ export default {
   listenAcks: true,            // Escucha confirmaciones de lectura (ticks)
   onPresenceChanged: false,    // ❌ No escucha cambios de presencia (por ejemplo: "escribiendo...")
   onParticipantsChanged: false, // ❌ No escucha cambios en participantes de grupos
-  onReactionMessage: true,    // ❌ No escucha reacciones (emojis)
-  onPollResponse: true,        // ✅ Escucha respuestas a encuestas
-  onRevokedMessage: true,      // ✅ Escucha cuando un mensaje se borra para todos
+  onReactionMessage: false,    // ❌ No escucha reacciones (emojis)
+  onPollResponse: false,        // ✅ Escucha respuestas a encuestas
+  onRevokedMessage: false,      // ✅ Escucha cuando un mensaje se borra para todos
   onLabelUpdated: false,        // ✅ Escucha cambios de etiquetas
   onSelfMessage: false,        // ❌ No procesa mensajes enviados por el propio bot
   ignore: ['status@broadcast'] // Ignora mensajes del estado de WhatsApp
@@ -47,47 +47,28 @@ export default {
   createOptions: {
    browserArgs: [
     '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
     '--disable-web-security',
-    '--disable-default-apps',
-    '--disable-extensions',
-    '--disable-sync',
-    '--disable-translate',
-    '--hide-scrollbars',
-    '--metrics-recording-only',
-    '--mute-audio',
     '--no-first-run',
+    '--mute-audio',
     '--ignore-certificate-errors',
     '--ignore-ssl-errors',
-    '--ignore-certificate-errors-spki-list',
-    '--disable-background-networking',
-    '--disable-gpu',
-    '--disable-dev-shm-usage',           
-    '--disable-setuid-sandbox',          
-    '--no-zygote',                       
-    '--single-process',                  
-    '--disable-background-timer-throttling', 
-    '--disable-renderer-backgrounding',  
-    '--disable-backgrounding-occluded-windows',
-    '--disable-features=TranslateUI',    // ✅ NUEVO: Desactiva traducción
-    '--disable-ipc-flooding-protection', // ✅ NUEVO: Mejor comunicación IPC
-    '--disable-features=VizDisplayCompositor', // ✅ NUEVO: Mejor rendimiento
-    '--aggressive-cache-discard',        // ✅ NUEVO: Libera memoria
-    '--max_old_space_size=4096'          // ✅ NUEVO: Más memoria para Node.js
+    '--aggressive-cache-discard'
   ],
-    executablePath: '/usr/bin/chromium-browser',
+  executablePath: '/usr/bin/chromium-browser',
     userDataDir: envConfig.customUserDataDir,
     keepAlive: true,
     keepAliveInterval: 300000,  
     linkPreviewApiServers: null,
-    // ✅ AGREGAR: Configuraciones específicas para QR más rápido
     puppeteerOptions: {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      timeout: 60000,  // ✅ NUEVO: 60 segundos timeout
+      timeout: 120000,  // ✅ Aumentado a 2 minutos
     },
-    // ✅ AGREGAR: Configuración de página para acelerar carga
-    browserWaitForActiveProcess: 30000,  // ✅ NUEVO: Espera 30 segundos
-    waitForLogin: 60000,                 // ✅ NUEVO: Espera 60 segundos para login
+    browserWaitForActiveProcess: 60000,  // ✅ Aumentado 
+    waitForLogin: 120000,                // ✅ Aumentado a 2 minutos
   },
   mapper: {
     enable: false,
