@@ -17,6 +17,8 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { contactToArray } from '../util/functions';
+import CreateSessionUtil from '../util/createSessionUtil'; // ✅ AGREGAR+
+import { clientsArray } from '../util/sessionUtil'; // ✅ AGREGAR
 
 export default async function statusConnection(
   req: Request,
@@ -25,6 +27,44 @@ export default async function statusConnection(
 ) {
   try {
     const numbers: any = [];
+
+  if (!req.client) {
+      // Si no hay cliente, intentar recargar la sesión
+      try {
+        console.log(`🔄 No client found for session: ${req.session}, attempting reload...`);
+        const util = new CreateSessionUtil();
+        await util.opendata(req, req.session);
+        req.client = clientsArray[req.session];
+        console.log(`✅ Session ${req.session} reloaded in statusConnection`);
+      } catch (error) {
+        console.error(`❌ Error reloading session in statusConnection:`, error);
+        return res.status(404).json({
+          response: null,
+          status: 'Disconnected',
+          message: 'A sessão do WhatsApp não está ativa. Favor reconectar.',
+        });
+      }
+    }
+
+// ✅ NUEVO: Verificar conexión y reconectar si es necesario
+    if (!req.client) {
+      // Si no hay cliente, intentar recargar la sesión
+      try {
+        console.log(`🔄 No client found for session: ${req.session}, attempting reload...`);
+        const util = new CreateSessionUtil();
+        await util.opendata(req, req.session);
+        req.client = clientsArray[req.session];
+        console.log(`✅ Session ${req.session} reloaded in statusConnection`);
+      } catch (error) {
+        console.error(`❌ Error reloading session in statusConnection:`, error);
+        return res.status(404).json({
+          response: null,
+          status: 'Disconnected',
+          message: 'A sessão do WhatsApp não está ativa. Favor reconectar.',
+        });
+      }
+    }
+
     if (req.client && req.client.isConnected) {
       await req.client.isConnected();
 

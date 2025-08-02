@@ -15,7 +15,7 @@
  */
 import bcrypt from 'bcrypt';
 import { NextFunction, Request, Response } from 'express';
-
+import CreateSessionUtil from '../util/createSessionUtil'; // ✅ AGREGAR
 import { clientsArray } from '../util/sessionUtil';
 
 function formatSession(session: string) {
@@ -67,10 +67,22 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): any => {
     bcrypt.compare(
       sessionDecrypt + secureToken,
       tokenDecrypt,
-      function (err, result) {
+      async function (err, result) {
         if (result) {
           req.session = formatSession(req.params.session);
           req.token = tokenDecrypt;
+          
+          if (!clientsArray[req.session] || !clientsArray[req.session]?.isConnected) {
+            try {
+              console.log(`🔄 Reloading session: ${req.session}`);
+              const util = new CreateSessionUtil();
+              await util.opendata(req, req.session);
+              console.log(`✅ Session ${req.session} reloaded successfully`);
+            } catch (error) {
+              console.error(`❌ Error reloading session ${req.session}:`, error);
+            }
+          }
+          
           req.client = clientsArray[req.session];
           next();
         } else {
