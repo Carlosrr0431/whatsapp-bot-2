@@ -61,28 +61,33 @@ export default {
     '--ignore-certificate-errors-spki-list',
     '--disable-background-networking',
     '--disable-gpu',
-    '--disable-dev-shm-usage',           // ✅ AGREGADO: Mejor manejo de memoria
-    '--disable-setuid-sandbox',          // ✅ AGREGADO: Necesario para contenedores
-    '--no-zygote',                       // ✅ AGREGADO: Mejor para contenedores
-    '--single-process',                  // ✅ AGREGADO: Evita problemas de memoria
-    '--disable-background-timer-throttling', // ✅ AGREGADO: Mejor rendimiento
-    '--disable-renderer-backgrounding',  // ✅ AGREGADO: Mantiene procesos activos
-    '--disable-backgrounding-occluded-windows' // ✅ AGREGADO: No suspende ventanas
+    '--disable-dev-shm-usage',           
+    '--disable-setuid-sandbox',          
+    '--no-zygote',                       
+    '--single-process',                  
+    '--disable-background-timer-throttling', 
+    '--disable-renderer-backgrounding',  
+    '--disable-backgrounding-occluded-windows',
+    '--disable-features=TranslateUI',    // ✅ NUEVO: Desactiva traducción
+    '--disable-ipc-flooding-protection', // ✅ NUEVO: Mejor comunicación IPC
+    '--disable-features=VizDisplayCompositor', // ✅ NUEVO: Mejor rendimiento
+    '--aggressive-cache-discard',        // ✅ NUEVO: Libera memoria
+    '--max_old_space_size=4096'          // ✅ NUEVO: Más memoria para Node.js
   ],
     executablePath: '/usr/bin/chromium-browser',
     userDataDir: envConfig.customUserDataDir,
     keepAlive: true,
-    // interval en ms
-    keepAliveInterval: 300000,  // cada 5 minutos
-    /**
-     * Example of configuring the linkPreview generator
-     * If you set this to 'null', it will use global servers; however, you have the option to define your own server
-     * Clone the repository https://github.com/wppconnect-team/wa-js-api-server and host it on your server with ssl
-     *
-     * Configure the attribute as follows:
-     * linkPreviewApiServers: [ 'https://www.yourserver.com/wa-js-api-server' ]
-     */
+    keepAliveInterval: 300000,  
     linkPreviewApiServers: null,
+    // ✅ AGREGAR: Configuraciones específicas para QR más rápido
+    puppeteerOptions: {
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      timeout: 60000,  // ✅ NUEVO: 60 segundos timeout
+    },
+    // ✅ AGREGAR: Configuración de página para acelerar carga
+    browserWaitForActiveProcess: 30000,  // ✅ NUEVO: Espera 30 segundos
+    waitForLogin: 60000,                 // ✅ NUEVO: Espera 60 segundos para login
   },
   mapper: {
     enable: false,
