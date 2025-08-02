@@ -9,7 +9,7 @@ export default {
   port: '21465',
   deviceName: 'WppConnect',
   poweredBy: 'WPPConnect-Server',
-  startAllSession: false,
+  startAllSession: true,
   tokenStoreType: envConfig.tokenStoreType,
   maxListeners: 100,
   customUserDataDir: envConfig.customUserDataDir,
